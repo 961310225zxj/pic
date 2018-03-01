@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.PlanMapper">
+	<resultMap id="BaseResultMap" type="com._520it.crm.domain.Plan">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="plandate" property="plandate" jdbcType="DATE" />
+		<result column="planmsg" property="planmsg" jdbcType="VARCHAR" />
+		<result column="handlemsg" property="handlemsg" jdbcType="VARCHAR" />
+		<result column="state" property="state" />
+		<association property="employee" javaType="com._520it.crm.domain.Employee"
+			columnPrefix="e_">
+			<result property="id" column="id" />
+			<result property="realname" column="realname" />
+		</association>
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from plan
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<update id="marksuccess">
+		update plan set state = 1 where id = #{id}
+	</update>
+	<update id="markfailed">
+		update plan set state = 2 where id = #{id}
+	</update>
+
+	<insert id="insert" parameterType="com._520it.crm.domain.Plan"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into plan (plandate, employee_id, planmsg,
+		handlemsg, state)
+		values (#{plandate,jdbcType=DATE}, #{employee.id,jdbcType=BIGINT},
+		#{planmsg,jdbcType=VARCHAR},
+		#{handlemsg,jdbcType=VARCHAR}, #{state})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Plan">
+		update plan
+		set plandate = #{plandate,jdbcType=DATE},
+		employee_id = #{employee.id,jdbcType=BIGINT},
+		planmsg = #{planmsg,jdbcType=VARCHAR},
+		handlemsg = #{handlemsg,jdbcType=VARCHAR},
+		state = #{state}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<update id="updateHandleMsg" parameterType="com._520it.crm.domain.Plan">
+		update plan
+		set handlemsg = #{handlemsg,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select id, plandate, employee_id, planmsg, handlemsg, state
+		from plan
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select p.id, p.plandate, p.employee_id, p.planmsg, p.handlemsg, p.state ,
+		e.id e_id , e.realname e_realname
+		from plan p join employee e
+	</select>
+	<select id="listQo" resultMap="BaseResultMap">
+		select p.id, p.plandate, p.employee_id, p.planmsg, p.handlemsg, p.state ,
+		e.id e_id , e.realname e_realname
+		from plan p left join employee e on p.employee_id = e.id
+		<include refid="where_sql"/>
+		limit #{start} , #{rows}
+	</select>
+	<sql id="where_sql">
+		<where>
+			<if test="realname!=null and realname != ''">
+				e.realname like concat('%',#{realname},'%')
+			</if>
+			<if test="begintime!=null and begintime != ''">
+				and p.plandate >= #{begintime}
+			</if>
+			<if test="endtime!=null and endtime != ''">
+				and p.plandate &lt;= #{endtime}
+			</if>
+		</where>
+	</sql>
+	<select id="countQo" resultType="long">
+		select count(p.id)
+		from plan p left join employee e on p.employee_id = e.id
+		<include refid="where_sql"/>
+	</select>
+</mapper>

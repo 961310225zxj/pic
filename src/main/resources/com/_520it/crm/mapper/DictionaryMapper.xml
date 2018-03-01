@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.DictionaryMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.Dictionary" >
+    <id column="id" property="id"/>
+    <result column="sn" property="sn"/>
+    <result column="name" property="name"/>
+    <result column="intro" property="intro"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from dictionary
+    where id = #{id}
+  </delete>
+  <insert id="insert" parameterType="com._520it.crm.domain.Dictionary" useGeneratedKeys="true" keyProperty="id" >
+    insert into dictionary (sn, name, intro
+      )
+    values (#{sn}, #{name}, #{intro}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Dictionary" >
+    update dictionary
+    set sn = #{sn},
+      name = #{name},
+      intro = #{intro}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, sn, name, intro
+    from dictionary
+    where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, sn, name, intro
+    from dictionary
+  </select>
+  <select id="queryPageCount" resultType="long">
+  	select count(id) from dictionary
+  </select>
+  <select id="queryPageData" resultMap="BaseResultMap">
+  	 select id, sn, name, intro
+    from dictionary
+  </select>
+  
+  <select id="selectByName" resultType="com._520it.crm.domain.Dictionary">
+  	select * from dictionary where name = #{name}	
+  </select>
+</mapper>

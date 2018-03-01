@@ -1,0 +1,27 @@
+
+#div1 {
+    margin: 0px auto 0px;
+    width: auto;
+    height: 100%;
+    background-color: #EFF5FF;
+    position: relative;
+    overflow: hidden;
+}
+#div1 ul {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+#div1 ul li {
+    list-style: none;
+    float: left;
+    cursor: pointer;
+}
+#div1 ul li img{
+    height: 270px;
+    width: 400px;
+}
+#div2 {
+    text-align: center;
+    margin: 0 auto;
+}

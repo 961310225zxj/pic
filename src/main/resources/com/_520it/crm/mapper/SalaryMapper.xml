@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.SalaryMapper">
+	<resultMap id="BaseResultMap" type="com._520it.crm.domain.Salary">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="salary" property="salary" jdbcType="DECIMAL" />
+		<result column="bonus" property="bonus" jdbcType="DECIMAL" />
+		<result column="year" property="year" jdbcType="VARCHAR" />
+		<result column="month" property="month" jdbcType="VARCHAR" />
+		<result column="total" property="total" jdbcType="DECIMAL" />
+		<association property="employee" javaType="com._520it.crm.domain.Employee"
+			columnPrefix="e_">
+			<result property="id" column="id" />
+			<result property="realname" column="realname" />
+		</association>
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from salary
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com._520it.crm.domain.Salary"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into salary (employee_id,
+		salary,
+		bonus, year, month,
+		total)
+		values
+		(#{employee.id,jdbcType=VARCHAR}, #{salary,jdbcType=DECIMAL},
+		#{bonus,jdbcType=DECIMAL}, #{year,jdbcType=VARCHAR},
+		#{month,jdbcType=VARCHAR},
+		#{total,jdbcType=DECIMAL})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Salary">
+		update salary
+		set
+		employee_id = #{employee.id,jdbcType=VARCHAR},
+		salary =
+		#{salary,jdbcType=DECIMAL},
+		bonus = #{bonus,jdbcType=DECIMAL},
+		year =
+		#{year,jdbcType=VARCHAR},
+		month = #{month,jdbcType=VARCHAR},
+		total =
+		#{total,jdbcType=DECIMAL}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select id, employee_id, salary, bonus, year, month,
+		total
+		from salary
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select s.* , e.id e_id ,
+		e.realname e_realname
+		from salary s join employee e on s.employee_id =
+		e.id
+	</select>
+	<sql id="where_sql">
+		<where>
+			<if test="years!=null and years!=''">
+				s.year = #{years}
+			</if>
+			<if test="months!=null and months!='' and months != -1">
+				and s.month = #{months}
+			</if>
+			<if test="realname!=null and realname !=''">
+				and e.realname like concat('%',#{realname},'%')
+			</if>
+		</where>
+	</sql>
+	<select id="selectQo" resultMap="BaseResultMap">
+		select s.* , e.id e_id , e.realname e_realname
+		from salary s left join
+		employee e on s.employee_id = e.id
+		<include refid="where_sql" />
+		limit #{start} , #{rows}
+	</select>
+	<select id="countQo" resultType="long">
+		select count(s.id)
+		from salary s left join employee e on s.employee_id
+		= e.id
+		<include refid="where_sql" />
+	</select>
+</mapper>

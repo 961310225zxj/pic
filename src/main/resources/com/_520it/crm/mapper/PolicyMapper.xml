@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.PolicyMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.Policy" >
+    <id column="id" property="id"  />
+	<result column="moneystatus" property="moneystatus"  />
+	<result column="checkstatus" property="checkstatus"  />
+	<result column="suggestion" property="suggestion"  />
+	<result column="inputtime" property="inputtime"  />
+      <association property="employee" javaType="com._520it.crm.domain.Employee">
+          <result property="id" column="employee_id"></result>
+          <result property="username" column="employee_username"></result>
+      </association>
+      <association property="product" javaType="com._520it.crm.domain.Product">
+          <result property="id" column="product_id"></result>
+          <result property="name" column="product_name"></result>
+          <result property="salePrice" column="product_salePrice"></result>
+          <result property="safetyDate" column="product_safetyDate"></result>
+          <result property="compensation" column="product_compensation"></result>
+      </association>
+      <association property="carInformation" javaType="com._520it.crm.domain.CarInformation">
+          <result property="id" column="carInformation_id"></result>
+          <result property="cartypeinformation" column="carInformation_cartypeinformation"></result>
+          <result property="carIdType" column="carInformation_caridtype"></result>
+          <result property="carId" column="carInformation_carid"></result>
+          <result property="is_newCar" column="carInformation_isnewcar"></result>
+          <result property="is_foreignCar" column="carInformation_foreignCar"></result>
+          <result property="is_transfer" column="carInformation_transfer"></result>
+      </association>
+      <association property="recognizee" javaType="com._520it.crm.domain.Recognizee">
+          <result property="id" column="recognizee_id"></result>
+          <result property="name" column="recognizee_name"></result>
+          <result property="is_personal" column="recognizee_is_personal"></result>
+          <result property="level" column="recognizee_level"></result>
+          <result property="numberType" column="recognizee_numberType"></result>
+          <result property="number" column="recognizee_number"></result>
+          <result property="address" column="recognizee_address"></result>
+          <result property="phoneNumber" column="recognizee_phoneNumber"></result>
+      </association>
+
+      <association property="insuredPerson" javaType="com._520it.crm.domain.InsuredPerson">
+          <result property="id" column="insuredPerson_id"></result>
+          <result property="name" column="insuredPerson_name"></result>
+          <result property="is_personal" column="insuredPerson_is_personal"></result>
+          <result property="level" column="insuredPerson_level"></result>
+          <result property="numberType" column="insuredPerson_numberType"></result>
+          <result property="number" column="insuredPerson_number"></result>
+          <result property="address" column="insuredPerson_address"></result>
+          <result property="phone" column="insuredPerson_phone"></result>
+      </association>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="long" >
+    delete from policy where id = #{id}
+  </delete>
+  <insert id="insert" parameterType="com._520it.crm.domain.Policy" useGeneratedKeys="true" keyProperty="id" >
+    insert into policy 
+    (recognizee_id,carInformation_id,employee_id,insuredPerson_id,product_id,
+      moneystatus,inputtime)
+    values 
+    (#{recognizee.id},#{carInformation.id},#{employee.id},#{insuredPerson.id},#{product.id},
+    #{moneystatus},#{inputtime})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Policy" >
+    update policy
+    set
+	    recognizee_id=#{recognizee.id},
+	    carInformation_id=#{carInformation.id},
+	    insuredPerson_id=#{insuredPerson.id},
+	    product_id=#{product.id},
+	    moneystatus=#{moneystatus}
+    where id = #{id}
+  </update>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long" >
+    SELECT policy.*,employee.id employee_id,employee.username employee_username,
+      product.*, carinformation.*, insuredperson.*, recognizee.*
+      FROM policy
+      LEFT JOIN employee ON policy.employee_id=employee.id
+      LEFT JOIN product ON policy.product_id=product.id
+      LEFT JOIN carinformation ON policy.carinformation_id=carinformation.id
+      LEFT JOIN insuredperson ON policy.insuredperson_id=insuredperson.id
+      LEFT JOIN recognizee ON policy.recognizee_id=recognizee.id
+    where policy.id = #{id}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select * from policy
+  </select>
+
+  <sql id="conditionSql">
+  	<where>
+  	</where>
+  </sql>
+
+  <select id="queryPageCount" resultType="long">
+  	  select count(0)
+      from policy
+      LEFT JOIN employee ON policy.employee_id=employee.id
+      LEFT JOIN product ON policy.product_id=product.id
+      LEFT JOIN carinformation ON policy.carinformation_id=carinformation.id
+      LEFT JOIN insuredperson ON policy.insuredperson_id=insuredperson.id
+      LEFT JOIN recognizee ON policy.recognizee_id=recognizee.id
+  	<include refid="conditionSql"/>
+  </select>
+
+  <select id="queryPageData" resultMap="BaseResultMap">
+      SELECT policy.*,employee.id employee_id,employee.username employee_username,
+      product.*, carinformation.*, insuredperson.*, recognizee.*
+      FROM policy
+      LEFT JOIN employee ON policy.employee_id=employee.id
+      LEFT JOIN product ON policy.product_id=product.id
+      LEFT JOIN carinformation ON policy.carinformation_id=carinformation.id
+      LEFT JOIN insuredperson ON policy.insuredperson_id=insuredperson.id
+      LEFT JOIN recognizee ON policy.recognizee_id=recognizee.id
+  	<include refid="conditionSql"/>
+  	limit #{start},#{rows}
+  </select>
+
+    <sql id="checkSql">
+        <where>
+            <if test="checkstatus!=null  ">
+                and policy.checkstatus=#{checkstatus}
+            </if>
+            <if test="moneystatus!=null">
+                and policy.moneystatus=#{moneystatus}
+            </if>
+            <if test="recognizee!=null and recognizee!=''">
+                and recognizee.name like concat('%',#{recognizee},'%')
+            </if>
+            <if test="insuredPerson!=null and insuredPerson!=''">
+                and insuredPerson.name like concat('%',#{insuredPerson},'%')
+            </if>
+            <if test="checkId!=null">
+                and policy.id=#{checkId}
+            </if>
+            <if test="product!=null and product!=''">
+                and product.name like concat('%',#{product},'%')
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                and  policy.inputtime &gt;= #{beginTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and  policy.inputtime &lt;= #{endTime}
+            </if>
+            and checkstatus!=2
+        </where>
+    </sql>
+    <sql id="checkOk">
+        <where>
+            <if test="checkstatus!=null  ">
+                and policy.checkstatus=#{checkstatus}
+            </if>
+            <if test="moneystatus!=null">
+                and policy.moneystatus=#{moneystatus}
+            </if>
+            <if test="recognizee!=null and recognizee!=''">
+                and recognizee.name like concat('%',#{recognizee},'%')
+            </if>
+            <if test="insuredPerson!=null and insuredPerson!=''">
+                and insuredPerson.name like concat('%',#{insuredPerson},'%')
+            </if>
+            <if test="checkId!=null">
+                and policy.id=#{checkId}
+            </if>
+            <if test="product!=null and product!=''">
+                and product.name like concat('%',#{product},'%')
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                and  policy.inputtime &gt;= #{beginTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and  policy.inputtime &lt;= #{endTime}
+            </if>
+        </where>
+    </sql>
+
+    <update id="receive">
+        update policy set checkstatus=1 WHERE id=#{id}
+    </update>
+
+    <select id="queryCheckCount" resultType="long">
+        select count(0)
+        from policy
+        LEFT JOIN employee ON policy.employee_id=employee.id
+        LEFT JOIN product ON policy.product_id=product.id
+        LEFT JOIN carinformation ON policy.carinformation_id=carinformation.id
+        LEFT JOIN insuredperson ON policy.insuredperson_id=insuredperson.id
+        LEFT JOIN recognizee ON policy.recognizee_id=recognizee.id
+        <include refid="checkSql"/>
+    </select>
+
+    <sql id="base_column">
+        policy.*,employee.id employee_id,employee.username employee_username,
+        product.id product_id,product.name product_name,product.saleprice product_saleprice,
+        product.safetydate product_safetydate,
+        product.organization_id product_organization_id,product.introduce product_introduce,
+        product.compensation product_compensation,
+
+        carinformation.id carinformation_id,carinformation.cartypeinformation carInformation_cartypeinformation,
+        carinformation.carbrand_id carinformation_carbrand,carinformation.caridtype carinformation_caridtype,
+        carinformation.carid carinformation_carid,carinformation.is_newcar carinformation_isnewcar,
+        carinformation.is_foreigncar carinformation_foreigncar,carinformation.is_transfer carinformation_transfer,
+
+        insuredperson.id insuredPerson_id,insuredperson.name insuredPerson_name,insuredPerson.phone insuredPerson_phone,
+        insuredPerson.numbertype insuredPerson_numbertype,insuredPerson.number insuredPerson_number,
+        insuredPerson.level insuredPerson_level,insuredPerson.address insuredPerson_address,
+
+        recognizee.id recognizee_id,recognizee.name recognizee_name,recognizee.level recognizee_level,
+        recognizee.phonenumber  recognizee_phonenumber,recognizee.numbertype recognizee_numbertype,
+        recognizee.address recognizee_address,recognizee.number recognizee_number,recognizee.is_personal recognizee_is_personal
+    </sql>
+
+    <sql id="base_table">
+        policy
+        LEFT JOIN employee ON policy.employee_id=employee.id
+        LEFT JOIN product ON policy.product_id=product.id
+        LEFT JOIN carinformation ON policy.carinformation_id=carinformation.id
+        LEFT JOIN insuredperson ON policy.insuredperson_id=insuredperson.id
+        LEFT JOIN recognizee ON policy.recognizee_id=recognizee.id
+    </sql>
+
+    <select id="queryCheckData" resultMap="BaseResultMap">
+        SELECT <include refid="base_column"/>
+        from <include refid="base_table"/>
+        <include refid="checkSql"/>
+        limit #{start},#{rows}
+    </select>
+    <select id="queryOkData" resultMap="BaseResultMap">
+        SELECT <include refid="base_column"/>
+        from <include refid="base_table"/>
+        <include refid="checkOk"/>
+        limit #{start},#{rows}
+    </select>
+    <select id="queryOkCount" resultType="long">
+        select count(0)
+        from policy
+        LEFT JOIN employee ON policy.employee_id=employee.id
+        LEFT JOIN product ON policy.product_id=product.id
+        LEFT JOIN carinformation ON policy.carinformation_id=carinformation.id
+        LEFT JOIN insuredperson ON policy.insuredperson_id=insuredperson.id
+        LEFT JOIN recognizee ON policy.recognizee_id=recognizee.id
+        <include refid="checkOk"/>
+    </select>
+
+    <update id="checkPolicy">
+        update policy SET  suggestion=#{suggestion},checkstatus=#{checkstatus} WHERE id=#{id}
+    </update>
+
+
+</mapper>

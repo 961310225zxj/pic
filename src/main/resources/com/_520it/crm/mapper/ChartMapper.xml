@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.ChartMapper">
+	<resultMap type="com._520it.crm.vo.ChartVO" id="baseMapper">
+		<result property="id" column="id" />
+		<result property="creatTime" column="creatTime" />
+		<result property="realname" column="realname" />
+		<result property="count" column="count" />
+		<result property="productName" column="productName" />
+	</resultMap>
+
+	<sql id="where_sql">
+		<where>
+			<if test="keyword != null">
+				and (e.username like concat('%',#{keyword},'%') or e.realname like concat('%',#{keyword},'%'))
+			</if>
+			<if test="beginDate != null">
+				and e.inputTime &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null">
+				and e.inputTime &lt;= #{endDate}
+			</if>
+		</where>
+	</sql>
+
+	<!-- 真实 -->
+	<select id="queryRealChart" resultMap="baseMapper">
+		SELECT
+		e.id,
+		realname,
+		username,
+		e.inputtime creatTime,
+		COUNT(ip.id) count
+		FROM
+		insuredperson ip
+		LEFT JOIN employee e ON (ip.employee_id = e.id)
+		<include refid="where_sql" />
+		 GROUP BY username
+	</select>
+	<!-- 潜在 -->
+	<select id="queryPotentialChart" resultMap="baseMapper">
+		SELECT
+		e.id,
+		realname,
+		username,
+		e.inputtime creatTime,
+		COUNT(c.id) count
+		FROM
+		client c
+		LEFT JOIN employee e ON (c.employee_id = e.id)
+		<include refid="where_sql" />
+		 GROUP BY username
+	</select>
+	<!-- 饼图 -->
+	<select id="queryCarChart" resultMap="baseMapper">
+		SELECT
+		pd.id,
+		pd.name productName,
+		COUNT(pd.id) count,
+		p.inputtime creatTime
+		FROM
+		policy p
+		JOIN product pd ON (p.product_id = pd.id)
+		<include refid="where_sql" />
+		 GROUP BY name
+	</select>
+</mapper>

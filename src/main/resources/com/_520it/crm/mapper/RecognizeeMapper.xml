@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.RecognizeeMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.Recognizee" >
+    <id column="id" property="id"  />
+	<result column="level" property="level"  />
+	<result column="phoneNumber" property="phoneNumber"  />
+	<result column="address" property="address"  />
+	<result column="name" property="name"  />
+	<result column="is_personal" property="is_personal"  />
+	<result column="number" property="number"  />
+	<result column="numberType" property="numberType"  />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="long" >
+    delete from recognizee where id = #{id}
+  </delete>
+  <insert id="insert" parameterType="com._520it.crm.domain.Recognizee" useGeneratedKeys="true" keyProperty="id" >
+    insert into recognizee 
+    (level,phoneNumber,address,name,is_personal,number,numberType)
+    values 
+    (#{level},#{phoneNumber},#{address},#{name},#{is_personal},#{number},#{numberType})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Recognizee" >
+    update recognizee
+    set
+	    level=#{level},
+	    phoneNumber=#{phoneNumber},
+	    address=#{address},
+	    name=#{name},
+	    is_personal=#{is_personal},
+	    number=#{number},
+	    numberType=#{numberType}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long" >
+    select * from recognizee where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select * from recognizee
+  </select>
+  <sql id="conditionSql">
+  	<where>
+  	</where>
+  </sql>
+  <select id="queryPageCount" resultType="long">
+  	select count(0) from recognizee
+  	<include refid="conditionSql"/>
+  </select>
+  <select id="queryPageData" resultMap="BaseResultMap">
+  	select * from recognizee
+  	<include refid="conditionSql"/>
+  	limit #{start},#{rows}
+  </select>
+</mapper>

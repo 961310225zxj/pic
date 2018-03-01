@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com._520it.crm.mapper.TransferRecordMapper">
+	<resultMap type="com._520it.crm.domain.TransferRecord" id="base_mapper">
+		<result property="id" column="id" />
+		<result property="transferdate" column="transferdate" />
+		<result property="transferreson" column="transferreson" />
+
+		<association property="marketList" javaType="com._520it.crm.domain.Employee"
+			columnPrefix="m_">
+			<result property="id" column="id" />
+			<result property="realname" column="realname" />
+		</association>
+
+		<association property="operator" javaType="com._520it.crm.domain.Employee"
+			columnPrefix="o_">
+			<result property="id" column="id" />
+			<result property="realname" column="realname" />
+		</association>
+
+		<association property="client" javaType="com._520it.crm.domain.Client"
+			columnPrefix="c_">
+			<result property="id" column="id" />
+			<result property="name" column="name" />
+		</association>
+
+	</resultMap>
+
+	<insert id="insert" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id">
+		insert into transferrecord
+		(client_id,transferdate,marketlist_id,transferreson,operator_id)values
+		(#{client.id},#{transferdate},#{marketList.id},#{transferreson},#{operator.id})
+	</insert>
+	<update id="updateByPrimaryKey">
+		update transferrecord
+		set
+		client_id=#{client_id},transferdate=#{transferdate},marketlist_id=#{marketList.id}
+		transferreson=#{transferreson},operator_id=#{operator.id}
+		where
+		id=#{id}
+	</update>
+
+	<delete id="deleteByPrimaryKey">
+		delete from transferrecord where id=#{id}
+	</delete>
+
+	<select id="selectByPrimaryKey" resultMap="base_mapper">
+		select * from
+		transferrecord where id=#{id}
+	</select>
+
+	<select id="selectAll" resultMap="base_mapper">
+		select * from transferrecord
+	</select>
+
+	<sql id="where_sql">
+		<where>
+			<if test="beginDate!=null and beginDate!=''">
+				and tr.transferdate >= #{beginDate}
+			</if>
+			<if test="endDate!=null and endDate!=''">
+				and tr.transferdate &lt;= #{endDate}
+			</if>
+			<if test="keyword!=null and keyword!=''">
+				and c.name=#{keyword}
+			</if>
+		</where>
+	</sql>
+
+	<select id="queryPageCount" resultType="long">
+		select count(*) from transferrecord tr LEFT JOIN client c on
+		tr.client_id=c.id
+		<include refid="where_sql"/>
+
+	</select>
+
+	<select id="queryPageData" resultMap="base_mapper">
+		SELECT c.id c_id,c.name c_name,tr.transferreson, tr.transferdate, m.id
+		m_id,m.realname
+		m_realname,
+		o.id o_id,o.realname o_realname
+		FROM
+		transferrecord tr
+		JOIN client c on tr.client_id=c.id
+		JOIN employee m on
+		m.id=tr.marketlist_id
+		JOIN employee o on
+		o.id=tr.operator_id
+		<include refid="where_sql" />
+		limit #{start},#{rows}
+	</select>
+
+</mapper>

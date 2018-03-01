@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.CarInformationMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.CarInformation" >
+    <id column="id" property="id"  />
+	<result column="carId" property="carId"  />
+	<result column="carIdType" property="carIdType"  />
+	<result column="is_transfer" property="is_transfer"  />
+	<result column="carTypeInformation" property="cartypeinformation"/>
+	<result column="is_license" property="is_license"  />
+	<result column="is_foreignCar" property="is_foreignCar"  />
+	<result column="is_newCar" property="is_newCar"  />
+
+      <association property="carBrand" javaType="com._520it.crm.domain.CarBrand">
+          <result property="id" column="CarBrand_id"></result>
+          <result property="name" column="CarBrand_name"></result>
+          <result property="sn" column="CarBrand_sn"></result>
+      </association>
+
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="long" >
+    delete from carInformation where id = #{id}
+  </delete>
+
+  <insert id="insert" parameterType="com._520it.crm.domain.CarInformation" useGeneratedKeys="true" keyProperty="id" >
+    insert into carInformation 
+    (carId,carIdType,is_transfer,carTypeInformation,carBrand_id,is_license,is_foreignCar,is_newCar)
+    values 
+    (#{carId},#{sn},#{carIdType},#{is_transfer},#{carTypeInformation},#{carBrand.id},#{is_license},#{is_foreignCar},#{is_newCar})
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.CarInformation" >
+    update carInformation
+    set
+	    carId=#{carId},
+	    carIdType=#{carIdType},
+	    is_transfer=#{is_transfer},
+	    carTypeInformation=#{carTypeInformation},
+	    carBrand_id=#{carBrand.id},
+	    is_license=#{is_license},
+	    is_foreignCar=#{is_foreignCar},
+	    is_newCar=#{is_newCar}
+    where id = #{id}
+  </update>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long" >
+    select CarInformation.*,CarBrand.id CarBrand_id,CarBrand.name CarBrand_name,CarBrand.sn CarBrand_sn
+    from CarInformation
+    LEFT JOIN CarBrand ON CarInformation.carBrand_id=CarBrand.id
+    where CarInformation.id = #{id}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select * from carInformation
+  </select>
+
+  <sql id="conditionSql">
+  	<where>
+  	</where>
+  </sql>
+
+  <select id="queryPageCount" resultType="long">
+  	select count(0)
+    from CarInformation
+    LEFT JOIN CarBrand ON CarInformation.carBrand_id=CarBrand.id
+  	<include refid="conditionSql"/>
+  </select>
+
+  <select id="queryPageData" resultMap="BaseResultMap">
+      select CarInformation.*,CarBrand.id CarBrand_id,CarBrand.name CarBrand_name,CarBrand.sn CarBrand_sn
+      from CarInformation
+      LEFT JOIN CarBrand ON CarInformation.carBrand_id=CarBrand.id
+  	<include refid="conditionSql"/>
+  	limit #{start},#{rows}
+  </select>
+</mapper>

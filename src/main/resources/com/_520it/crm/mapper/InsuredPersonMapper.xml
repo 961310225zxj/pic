@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.InsuredPersonMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.InsuredPerson" >
+    <id column="id" property="id"  />
+	<result column="phone" property="phone"  />
+	<result column="level" property="level"  />
+	<result column="address" property="address"  />
+	<result column="name" property="name"  />
+	<result column="is_personal" property="is_personal"  />
+	<result column="number" property="number"  />
+	<result column="numberType" property="numberType"  />
+	<result column="is_insured" property="is_insured"  />
+	<result column="gender" property="gender"  />
+	<result column="age" property="age"  />
+	<result column="email" property="email"  />
+	<result column="profession" property="profession"  />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="long" >
+    delete from insuredPerson where id = #{id}
+  </delete>
+  <insert id="insert" parameterType="com._520it.crm.domain.InsuredPerson" useGeneratedKeys="true" keyProperty="id" >
+    insert into insuredPerson 
+    (phone,level,address,name,is_personal,number,numberType,is_insured,gender,age,email,profession)
+    values 
+    (#{phone},#{level},#{address},#{name},#{is_personal},#{number},#{numberType},#{is_insured},
+    #{gender},#{age},#{email},#{profession})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.InsuredPerson" >
+    update insuredPerson
+    set
+	    phone=#{phone},
+	    level=#{level},
+	    address=#{address},
+	    name=#{name},
+	    is_personal=#{is_personal},
+	    number=#{number},
+	    numberType=#{numberType},
+	    is_insured=#{is_insured},
+	    gender=#{gender},
+	    age=#{age},
+	    email=#{email},
+	    profession=#{profession}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long" >
+    select * from insuredPerson where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select * from insuredPerson
+  </select>
+  <sql id="conditionSql">
+  	<where>
+  	</where>
+  </sql>
+  <select id="queryPageCount" resultType="long">
+  	select count(0) from insuredPerson
+  	<include refid="conditionSql"/>
+  </select>
+  <select id="queryPageData" resultMap="BaseResultMap">
+  	select * from insuredPerson
+  	<include refid="conditionSql"/>
+  	limit #{start},#{rows}
+  </select>
+</mapper>

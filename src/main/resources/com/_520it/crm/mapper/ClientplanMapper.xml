@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.ClientplanMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.Clientplan" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="plantime" property="plantime" jdbcType="DATE" />
+    <result column="effect" property="effect" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="measure" property="measure" jdbcType="VARCHAR" />
+    <result column="detail" property="detail" jdbcType="VARCHAR" />
+    <result column="inputtime" property="inputtime" jdbcType="DATE" />
+
+    <association property="employee" javaType="com._520it.crm.domain.Employee" columnPrefix="e_">
+          <id property="id" column="id"></id>
+          <result property="realname" column="realname"></result>
+    </association>
+
+    <association property="client" javaType="com._520it.crm.domain.Client" columnPrefix="c_">
+      <id property="id" column="id"></id>
+      <result property="name" column="name"></result>
+    </association>
+
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from clientplan
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com._520it.crm.domain.Clientplan" useGeneratedKeys="true" keyProperty="id" >
+    insert into clientplan (plantime, effect, title, 
+      remark, measure, detail, 
+      client_id, employee_id, inputtime
+      )
+    values (#{plantime,jdbcType=DATE}, #{effect,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{measure,jdbcType=VARCHAR}, #{detail,jdbcType=VARCHAR}, 
+      #{client.id,jdbcType=BIGINT}, #{employee.id,jdbcType=BIGINT}, #{inputtime,jdbcType=DATE}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Clientplan" >
+    update clientplan
+    set plantime = #{plantime,jdbcType=DATE},
+      effect = #{effect,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      measure = #{measure,jdbcType=VARCHAR},
+      detail = #{detail,jdbcType=VARCHAR},
+      client_id = #{client.id,jdbcType=BIGINT},
+      employee_id = #{employee.id,jdbcType=BIGINT},
+      inputtime = #{inputtime,jdbcType=DATE}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, plantime, effect, title, remark, measure, detail, client_id, employee_id,
+    inputtime
+    from clientplan
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, plantime, effect, title, remark, measure, detail, client_id, employee_id,
+    inputtime
+    from clientplan
+  </select>
+
+  <!--高级查询条件-->
+  <sql id="where_sql">
+    <where>
+      <if test="keyword!=null and keyword!=''">
+        (
+        cp.effect LIKE concat('%',#{keyword},'%')
+        or cp.title LIKE concat('%',#{keyword},'%')
+        or cp.remark LIKE concat('%',#{keyword},'%')
+        or cp.detail LIKE concat('%',#{keyword},'%')
+        )
+      </if>
+      <if test="beginDate!=null and beginDate!=''">
+        and cp.plantime >= #{beginDate}
+      </if>
+      <if test="endDate!=null and endDate!=''">
+        and cp.plantime &lt;=#{endDate}
+      </if>
+
+    </where>
+  </sql>
+
+  <!-- 查询总结果数 -->
+  <select id="queryPageCount" resultType="long">
+    SELECT count(*) FROM clientplan cp LEFT JOIN client c ON cp.client_id=c.id
+    LEFT JOIN employee e ON e.id=cp.employee_id
+    <include refid="where_sql" />
+  </select>
+
+  <!-- 查询结果集 -->
+  <select id="queryPageResult" resultMap="BaseResultMap">
+    SELECT cp.* ,c.id c_id,c.name c_name,e.id e_id ,e.realname e_realname FROM clientplan cp LEFT JOIN client c ON cp.client_id=c.id
+    LEFT JOIN employee e ON e.id=cp.employee_id
+    <include refid="where_sql" />
+    limit #{start},#{rows}
+  </select>
+
+</mapper>

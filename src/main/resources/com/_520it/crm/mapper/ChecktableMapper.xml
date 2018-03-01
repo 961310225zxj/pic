@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.ChecktableMapper">
+	<resultMap id="BaseResultMap" type="com._520it.crm.domain.Checktable">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="employeeIp" property="employeeip" jdbcType="VARCHAR" />
+		<result column="state" property="state" />
+		<result column="signInTime" property="signintime" jdbcType="TIMESTAMP" />
+		<result column="signOutTime" property="signouttime" jdbcType="TIMESTAMP" />
+		<result column="checked_time" property="checkedTime" jdbcType="TIMESTAMP" />
+		<!-- 签到员工 -->
+		<association property="employee" javaType="com._520it.crm.domain.Employee"
+			columnPrefix="e_">
+			<result property="id" column="id" />
+			<result property="realname" column="realname" />
+		</association>
+		<!-- 补签人(管理员) -->
+		<association property="checked" javaType="com._520it.crm.domain.Employee"
+			columnPrefix="ec_">
+			<result property="id" column="id" />
+			<result property="realname" column="realname" />
+		</association>
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		checktable
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com._520it.crm.domain.Checktable"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into checktable
+		(employee_id, employeeIp, state,
+		signInTime, signOutTime, checked_id,
+		checked_time)
+		values (#{employee.id,jdbcType=BIGINT},
+		#{employeeip,jdbcType=VARCHAR},
+		#{state},
+		#{signintime,jdbcType=TIMESTAMP}, #{signouttime,jdbcType=TIMESTAMP},
+		#{checked.id,jdbcType=BIGINT},
+		#{checkedTime,jdbcType=TIMESTAMP})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Checktable">
+		update checktable
+		set <!-- employee_id = #{employee.id,jdbcType=BIGINT},
+		employeeIp =
+		#{employeeip,jdbcType=VARCHAR},
+		state = #{state},
+		signInTime =
+		#{signintime,jdbcType=TIMESTAMP}, -->
+		signOutTime =
+		#{signouttime,jdbcType=TIMESTAMP}
+		<!-- checked_id =
+		#{checked.id,jdbcType=BIGINT},
+		checked_time =
+		#{checkedTime,jdbcType=TIMESTAMP} -->
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select id, employee_id, employeeIp, state, signInTime,
+		signOutTime,
+		checked_id, checked_time
+		from checktable
+		where employee_id =
+		#{employeeId}
+	</select>
+	<select id="selectByEmpId" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select id, employee_id, employeeIp, state, signInTime,
+		signOutTime,
+		checked_id, checked_time
+		from checktable
+		where employee_id =
+		#{employeeId}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select c.* , e.id e_id ,
+		e.realname e_realname ,ec.id ec_id ,
+		ec.realname ec_realname
+		from
+		checktable c join employee e on
+		c.employee_id = e.id
+		left join employee
+		ec on c.checked_id = ec.id
+	</select>
+	
+	<!-- 导出exl文件 -->
+	<select id="exportChecktable" resultMap="BaseResultMap">
+		select c.* , e.id e_id ,
+		e.realname e_realname ,ec.id ec_id ,
+		ec.realname ec_realname
+		from
+		checktable c join employee e on
+		c.employee_id = e.id
+		left join employee
+		ec on c.checked_id = ec.id
+	</select>
+</mapper>

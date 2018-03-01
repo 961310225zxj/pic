@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.DictionaryItemMapper" >
+  <resultMap id="BaseResultMap" type="com._520it.crm.domain.DictionaryItem" >
+    <id column="id" property="id"/>
+    <result column="name" property="name"/>
+    <result column="intro" property="intro"/>
+    <result column="state" property="state"/>
+    <association property="parent" javaType="com._520it.crm.domain.Dictionary">
+    	<id column="d_id" property="id"/>
+    	<result column="d_name" property="name"/>
+    </association>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from dictionaryItem
+    where id = #{id}
+  </delete>
+  
+  <delete id="deleteByParentId">
+  	delete from dictionaryItem where parent_id = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="com._520it.crm.domain.DictionaryItem" useGeneratedKeys="true" keyProperty="id" >
+    insert into dictionaryItem (name, intro, parent_id, 
+      state)
+    values (#{name}, #{intro}, #{parent.id}, 
+      #{state})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.DictionaryItem" >
+    update dictionaryItem
+    set name = #{name},
+      intro = #{intro}
+    where id = #{id}
+  </update>
+  
+  <sql id="base_table">
+  	dictionaryItem dt LEFT JOIN dictionary di ON (dt.parent_id = di.id)
+  </sql>
+  <sql id="base_column">
+  	dt.*,di.id d_id,di.`name` d_name
+  </sql>
+  
+ 
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, name, intro, parent_id, state
+    from dictionaryItem
+    where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, name, intro, parent_id, state
+    from dictionaryItem
+  </select>
+  
+   <select id="queryPageCount" resultType="long">
+  	select count(0) 
+  	from dictionaryItem where parent_id = #{parentId}
+  </select>
+  <select id="queryPageData" resultMap="BaseResultMap">
+  	 select <include refid="base_column"/>
+    from <include refid="base_table"/>
+    where parent_id = #{parentId} and state = 1
+  </select>
+</mapper>

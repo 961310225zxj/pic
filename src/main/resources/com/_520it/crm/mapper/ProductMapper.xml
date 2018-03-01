@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.ProductMapper">
+    <resultMap id="BaseResultMap" type="com._520it.crm.domain.Product">
+
+        <id column="id" property="id"/>
+        <result column="compensation" property="compensation"/>
+        <result column="safetyDate" property="safetyDate"/>
+        <result column="name" property="name"/>
+        <result column="introduce" property="introduce"/>
+        <result column="salePrice" property="salePrice"/>
+
+        <association property="productOrganization" javaType="com._520it.crm.domain.ProductOrganization">
+            <result property="id" column="product_Organization_id"></result>
+            <result property="name" column="product_Organization_name"></result>
+        </association>
+
+    </resultMap>
+
+    <delete id="deleteByPrimaryKey" parameterType="long">
+    delete from product where id = #{id}
+  </delete>
+
+    <insert id="insert" parameterType="com._520it.crm.domain.Product" useGeneratedKeys="true" keyProperty="id">
+    insert into product 
+    (compensation,safetyDate,name,introduce,salePrice,Organization_id)
+    values 
+    (#{compensation},#{safetyDate},#{name},#{sn},#{introduce},#{salePrice},#{productOrganization.id})
+  </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Product">
+    update product
+    set
+	    compensation=#{compensation},
+	    safetyDate=#{safetyDate},
+	    name=#{name},
+	    introduce=#{introduce},
+	    salePrice=#{salePrice},
+	    Organization_id=#{productOrganization.id}
+    where id = #{id}
+  </update>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="long">
+    select product.*,product_Organization.id product_Organization_id,product_Organization.name product_Organization_name
+    from product
+    LEFT JOIN product_Organization ON product.Organization_id=product_Organization.id
+    where product.id = #{id}
+  </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+    select * from product
+  </select>
+    <sql id="conditionSql">
+        <where>
+        </where>
+    </sql>
+    <select id="queryPageCount" resultType="long">
+        select count(0)
+        from product
+        LEFT JOIN product_Organization ON product.Organization_id=product_Organization.id
+        <include refid="conditionSql"/>
+    </select>
+    <select id="queryPageData" resultMap="BaseResultMap">
+        select product.*,product_Organization.id product_Organization_id,product_Organization.name product_Organization_name
+        from product
+        LEFT JOIN product_Organization ON product.Organization_id=product_Organization.id
+        <include refid="conditionSql"/>
+        limit #{start},#{rows}
+    </select>
+
+    <select id="listAll" resultMap="BaseResultMap">
+        select product.*,product_Organization.id product_Organization_id,product_Organization.name product_Organization_name
+        from product
+        LEFT JOIN product_Organization ON product.Organization_id=product_Organization.id
+    </select>
+</mapper>

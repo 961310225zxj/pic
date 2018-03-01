@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com._520it.crm.mapper.ClientMapper">
+	<resultMap id="BaseResultMap" type="com._520it.crm.domain.Client">
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="isInsured" column="is_insured" />
+		<result property="number" column="number" />
+		<result property="address" column="address" />
+		<result property="age" column="age" />
+		<result property="gender" column="gender" />
+		<result property="profession" column="profession" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="inputtime" column="inputtime" />
+		<result property="state" column="state" />
+		<result property="employee_id" column="employee_id"/>
+	</resultMap>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from client
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<insert id="insert" parameterType="com._520it.crm.domain.Client"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into client (name, is_insured, number,
+		address, age, gender,
+		profession, phone, email,state,
+		inputtime,employee_id)
+		values (#{name,jdbcType=VARCHAR}, #{isInsured,jdbcType=BIT},
+		#{number,jdbcType=INTEGER},
+		#{address,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER}, #{gender,jdbcType=VARCHAR},
+		#{profession,jdbcType=VARCHAR}, #{phone,jdbcType=INTEGER},
+		#{email,jdbcType=VARCHAR},
+		#{state,jdbcType=BIT},
+		#{inputtime,jdbcType=TIMESTAMP},
+		#{employee_id,jdbcType=BIGINT}
+		)
+	</insert>
+	
+	<update id="updateByPrimaryKey" parameterType="com._520it.crm.domain.Client">
+		update client
+		set name = #{name,jdbcType=VARCHAR},
+		is_insured = #{isInsured,jdbcType=BIT},
+		number = #{number,jdbcType=INTEGER},
+		address = #{address,jdbcType=VARCHAR},
+		age = #{age,jdbcType=INTEGER},
+		gender = #{gender,jdbcType=VARCHAR},
+		profession = #{profession,jdbcType=VARCHAR},
+		phone = #{phone,jdbcType=INTEGER},
+		email = #{email,jdbcType=VARCHAR},
+		inputtime = #{inputtime,jdbcType=TIMESTAMP},
+		employee_id=#{employee_id,jdbcType=BIGINT}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select id, name, is_insured, number, address, age, gender, profession,state,
+		phone, email,employee_id,
+		inputtime
+		from client
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="selectAll" resultMap="BaseResultMap">
+		select id, name, is_insured, number, address, age, gender, profession,
+		phone, email,state,
+		inputtime,employee_id
+		from client
+	</select>
+
+	<!--高级查询条件-->
+	<sql id="where_sql">
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				(
+				name LIKE concat('%',#{keyword},'%')
+				OR email LIKE concat('%',#{keyword},'%')
+				OR profession LIKE concat('%',#{keyword},'%')
+				)
+			</if>
+			<if test="state!=null">
+				and state=#{state}
+			</if>
+			<if test="state!=null">
+				and is_insured=#{isInsured}
+			</if>
+		</where>
+	</sql>
+
+	<!-- 查询总结果数 -->
+	<select id="queryPageCount" resultType="long">
+		select count(*) from client
+		<include refid="where_sql" />
+	</select>
+
+	<!-- 查询结果集 -->
+	<select id="queryPageResult" resultMap="BaseResultMap">
+		select * FROM client
+		<include refid="where_sql" />
+		limit #{start},#{rows}
+	</select>
+
+	<update id="transferCustomer">
+		update client set employee_id=#{empId} where id=#{clientId}
+	</update>
+	
+	<update id="changeState">
+		update client set state=false where id=#{clientId}
+	</update>
+	
+	<update id="absorb">
+		update client set state=true where id=#{clientId}
+	</update>
+
+</mapper>
